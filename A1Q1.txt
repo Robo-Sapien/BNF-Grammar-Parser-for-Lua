@@ -1,0 +1,17 @@
+
+<Statements> ::= <Conditional-statement> | <Loop-statement> | 
+
+
+
+<type-specifier> ::=  boolean | number | string | <struct>
+
+<Declarative-statement> ::= 
+
+<Conditional-statement> ::= if( <expression> ) <Statements> end
+							| if( <expression> ) <Statements> else <Statements> end
+
+<Loop-statement> ::= while( <expression> ) do <Statements> end
+					| for() do <Statements> end
+					| repeat <Statements> until( <expression> )
+					
+					
