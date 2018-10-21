@@ -108,6 +108,121 @@ void fill_symbol_table(vector<string> &parsed_stmts,
 	}
 }
 
+/////Function to create the symbol table for structures////////
+vector<vector<int>> struct_equi(vector<pair<string,vector<tuple<string,string,int,int>>>> &input)
+{
+    //cout<<"hello\n";
+    int n=input.size();
+    //cout<<n<<endl;
+    vector<vector<int>> equi_table(n,vector<int>(n,-1));
+    int i,j,k,l;
+    for(i=0;i<n;i++)
+    {
+        equi_table[i][i]=1;
+    }
+    /*for(i=0;i<n;i++)
+    {
+        for(j=0;j<n;j++)
+        {
+            cout<<equi_table[i][j]<<" ";
+        }
+        cout<<endl;
+    }*/
+    vector<tuple<string,string,int,int>> tup1=input[0].second;
+    cout<<get<0>(tup1[0])<<endl;
+    int flag=1;
+    while(flag)
+    {
+        flag=0;
+        for(i=0;i<n;i++)
+        {
+            for(j=i+1;j<n;j++)
+            {
+                if(equi_table[i][j]!=-1)
+                {
+                    continue;
+                }
+                vector<tuple<string,string,int,int>> v1=input[i].second;
+                vector<tuple<string,string,int,int>> v2=input[j].second;
+                if(v1.size()!=v2.size())
+                {
+                    equi_table[i][j]=0;
+                    flag=1;
+                    continue;
+                }
+                for(k=0;k<v1.size();k++)
+                {
+                    string type1=get<0>(v1[k]);
+                    string type2=get<0>(v2[k]);
+                    if(type1.find("struct")!=string::npos&&type2.find("struct")!=string::npos)
+                    {
+                        int pos1,pos2;
+                        for(l=0;l<n;l++)
+                        {
+                            if(input[l].first==type1)
+                            {
+                                pos1=l;
+                                break;
+                            }
+                        }
+                        for(l=0;l<n;l++)
+                        {
+                            if(input[l].first==type2)
+                            {
+                                pos2=l;
+                                break;
+                            }
+                        }
+                        if(pos1>pos2)
+                        {
+                            swap(pos1,pos2);
+                        }
+                        if(equi_table[pos1][pos2]==0)
+                        {
+                            equi_table[i][j]=0;
+                            flag=1;
+                            break;
+                        }
+                        if(equi_table[pos1][pos2]==-1)
+                        {
+                            break;
+                        }
+                    }
+                    else if(type1.find("struct")==string::npos&&type2.find("struct")==string::npos)
+                    {
+                        if(!(get<0>(v1[k])==get<0>(v2[k])&&get<2>(v1[k])==get<2>(v2[k])&&get<3>(v1[k])==get<3>(v2[k])))
+                        {
+                            equi_table[i][j]=0;
+                            flag=1;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        equi_table[i][j]=0;
+                        flag=1;
+                        break;
+                    }
+                }
+                if(k==v1.size())
+                {
+                    equi_table[i][j]=1;
+                    flag=1;
+                }
+            }
+        }
+    }
+    for(i=0;i<n;i++)
+    {
+        for(j=0;j<n;j++)
+        {
+            cout<<equi_table[i][j]<<" ";
+        }
+        cout<<endl;
+    }
+    return equi_table;
+}
+
 //Creating the info vector based on the declaration of struct
 vector<pair<string,vector<tuple<string,string,int,int>>>> create_struct_info_vec(\
 										vector<string> parsed_defn,\
@@ -145,12 +260,12 @@ vector<pair<string,vector<tuple<string,string,int,int>>>> create_struct_info_vec
 ///////////////// MAIN FUNCTION ////////////////////////////
 int main(int argc, char** argv){
 	string code="erferf int a,b[100],c5; float c,d,f;  abhinabddefvefv int a1,a2,a3; int abiefvjef;";
-	string code2="bbb int i,*j [15];struct node{int a;float b;};struct node* *n1,n2  [200];";
+	string code2="bbb int i,*j [15];struct node{int a;float b;struct node c1;};struct node1{int a;float b;};struct node* *n1,n2  [200];";
 
 	//Regex-Patterns for interger and float parsing
 	regex int_pattern("int.*?;");
 	regex float_pattern("float.*?;");
-	regex struct_defn_pattern("struct.*[{].*?[}];");
+	regex struct_defn_pattern("struct.*?[{].*?[}];");
 	regex struct_dec_pattern("struct.*?;");
 
 	//Parsing the declaration statements form the whole code
@@ -203,5 +318,6 @@ int main(int argc, char** argv){
 			cout<<endl;
 		}
 	}
+	struct_equi(struct_defn_table);
 	return 0;
 }
