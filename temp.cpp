@@ -108,6 +108,100 @@ void fill_symbol_table(vector<string> &parsed_stmts,
 	}
 }
 
+//Creating the info vector based on the declaration of struct
+vector<pair<string,vector<tuple<string,string,int,int>>>> create_struct_info_vec(\
+										vector<string> parsed_defn,\
+										string saving_preference){
+	cout<<endl<<"Creating the struct definition table"<<endl;
+	//Grouping the name of struct and internal definitions
+	regex grp_struct_pattern("(struct.*)[{](.*)[}];");
+	regex stmt_parser_pattern("(?:int|float|struct).*?;");
+	smatch match_itr;
+
+	vector<pair<string,vector<tuple<string,string,int,int>>>> struct_defn_table;
+	//Now starting to iterate over all the definition of struct
+	for(unsigned int i=0;i<parsed_defn.size();i++){
+		string defn_stmt=parsed_defn[i];
+		//Extracting out the groups in the definition
+		regex_search(defn_stmt,match_itr,grp_struct_pattern);
+		string snames=(string)match_itr[1];
+		string dec_stmts=(string)match_itr[2];
+
+		//Creating the statement vector from sequence of declaration
+		vector<string> dec_stmts_vector;
+		declaration_parser(dec_stmts,stmt_parser_pattern,dec_stmts_vector);
+		cout<<"Parserd declaration statements"<<endl;
+		for(unsigned int i=0;i<dec_stmts_vector.size();i++){
+			cout<<dec_stmts_vector[i]<<endl;
+		}
+
+		//Now creating the symbol table for the curretn definition
+		vector<tuple<string,string,int,int>> defn_table;
+		fill_symbol_table(dec_stmts_vector,defn_table);
+		struct_defn_table.push_back(make_pair(snames,defn_table));
+	}
+	return struct_defn_table;
+}
+
+//Creating the info vector based on the declaration of struct
+vector<pair<pair<string,string>,vector<tuple<string,string,int,int>>>> create_func_info_vec(\
+                                                                    vector<string> parsed_defn){
+	cout<<endl<<"Creating the func definition table"<<endl;
+	//Grouping the name of struct and internal definitions
+	regex grp_struct_pattern("(int[\\s|\\*]+|float[\\s|\\*]+|struct[\\s]+[\\S]+[\\s|\\*]+)(.*)[\\(](.*?)[\\)];");
+	regex stmt_parser_pattern("(?:int|float|struct).*?,");
+	smatch match_itr;
+
+	vector<pair<pair<string,string>,vector<tuple<string,string,int,int>>>> struct_defn_table;
+	//Now starting to iterate over all the definition of struct
+	for(unsigned int i=0;i<parsed_defn.size();i++){
+		string defn_stmt=parsed_defn[i];
+		//Extracting out the groups in the definition
+		regex_search(defn_stmt,match_itr,grp_struct_pattern);
+
+		//Extracting the return type of function
+		string stype=(string)match_itr[1];
+		//Calculating the degree of pointer in return type
+		int degree_ptr_return=0;
+		for(unsigned int j=stype.length()-1;j>=0;j--){
+			if(stype[j]=='*'){
+				degree_ptr_return++;
+			}
+			else if(stype[j]!=' '){
+				break;
+			}
+			//erasing the space or star from the string name
+			stype.erase(j,1);
+		}
+		stype+='0'+degree_ptr_return;
+		cout<<stype<<endl;
+
+		//Extracting the name of function
+		string snames=(string)match_itr[2];
+		cout<<snames<<endl;
+
+		//Extracting the arguments
+		string dec_stmts=(string)match_itr[3];
+		dec_stmts+=',';
+		cout<<dec_stmts<<endl;
+
+		//Creating the statement vector from sequence of declaration
+		vector<string> dec_stmts_vector;
+		declaration_parser(dec_stmts,stmt_parser_pattern,dec_stmts_vector);
+		cout<<"Parserd declaration statements"<<endl;
+		for(unsigned int i=0;i<dec_stmts_vector.size();i++){
+			cout<<dec_stmts_vector[i]<<endl;
+		}
+
+		//Now creating the symbol table for the curretn definition
+		vector<tuple<string,string,int,int>> defn_table;
+		fill_symbol_table(dec_stmts_vector,defn_table);
+		pair<string,string> name_rettype=make_pair(stype,snames);
+		struct_defn_table.push_back(make_pair(name_rettype,defn_table));
+	}
+	return struct_defn_table;
+}
+
 /////Function to create the symbol table for structures////////
 vector<vector<int>> struct_equi(vector<pair<string,vector<tuple<string,string,int,int>>>> &input)
 {
@@ -215,40 +309,6 @@ vector<vector<int>> struct_equi(vector<pair<string,vector<tuple<string,string,in
     return equi_table;
 }
 
-//Creating the info vector based on the declaration of struct
-vector<pair<string,vector<tuple<string,string,int,int>>>> create_struct_info_vec(\
-										vector<string> parsed_defn,\
-										string saving_preference){
-	cout<<endl<<"Creating the struct definition table"<<endl;
-	//Grouping the name of struct and internal definitions
-	regex grp_struct_pattern("(struct.*)[{](.*)[}];");
-	regex stmt_parser_pattern("(?:int|float|struct).*?;");
-	smatch match_itr;
-
-	vector<pair<string,vector<tuple<string,string,int,int>>>> struct_defn_table;
-	//Now starting to iterate over all the definition of struct
-	for(unsigned int i=0;i<parsed_defn.size();i++){
-		string defn_stmt=parsed_defn[i];
-		//Extracting out the groups in the definition
-		regex_search(defn_stmt,match_itr,grp_struct_pattern);
-		string snames=(string)match_itr[1];
-		string dec_stmts=(string)match_itr[2];
-
-		//Creating the statement vector from sequence of declaration
-		vector<string> dec_stmts_vector;
-		declaration_parser(dec_stmts,stmt_parser_pattern,dec_stmts_vector);
-		cout<<"Parserd declaration statements"<<endl;
-		for(unsigned int i=0;i<dec_stmts_vector.size();i++){
-			cout<<dec_stmts_vector[i]<<endl;
-		}
-
-		//Now creating the symbol table for the curretn definition
-		vector<tuple<string,string,int,int>> defn_table;
-		fill_symbol_table(dec_stmts_vector,defn_table);
-		struct_defn_table.push_back(make_pair(snames,defn_table));
-	}
-	return struct_defn_table;
-}
 ///////////CREATING NAME EQUIVALENCE TABLE//////////////////
 vector<vector<int>> name_equi(vector<tuple<string,string,int,int>>& symtab)
 {
@@ -307,13 +367,13 @@ void struc_equivalence(vector<vector<int>>&stru_equi_table,vector<tuple<string,s
 ///////////////// MAIN FUNCTION ////////////////////////////
 int main(int argc, char** argv){
 	string code="erferf int a,b[100],c5; float c,d,f;  abhinabddefvefv int a1,a2,a3; int abiefvjef;";
-	string code2="	bbb int i,j,*j[15],*k[15];\
+	string code2="	int* * func1(int a,float b,struct node cq);\
+					struct node* * * func2(int a,int b,struct node1 c1);\
+					bbb int i,j,*j[15],*k[15];\
 					struct node{int a;float b;struct node c1;};\
 					struct node1{int a;float b;struct node c2;};\
 					struct node* *n1,*n2,n3  [200];\
 					struct node1* *n4;\
-					int func1(int a,float b,struct node cq){blah;blah;return balh};\
-					int func2(int a,int b,struct node1 c1){};\
 					";
 
 	//Regex-Patterns for interger and float parsing
@@ -322,12 +382,15 @@ int main(int argc, char** argv){
 	regex struct_defn_pattern("struct.*?[{].*?[}];");
 	regex struct_dec_pattern("struct.*?;");
 	//Regex-Pattern for function extraction
-	regex func_dec_pattern("(?:int|float|struct).*[(].*?[)];")
+	regex func_dec_pattern("(?:int|float|struct).*?[\\(].*?[\\)];");
 
 	//Parsing the declaration statements form the whole code
 	vector<string> parsed_stmts;//this will hold the statements
 	vector<string> parsed_defn;//this will hold the definitions
+	vector<string> parsed_func;//this will hold the func declaration
 
+
+	declaration_parser(code2,func_dec_pattern,parsed_func);
 	declaration_parser(code2,struct_defn_pattern,parsed_defn);
 	declaration_parser(code2,struct_dec_pattern,parsed_stmts);
 	declaration_parser(code2,int_pattern,parsed_stmts);
@@ -341,6 +404,10 @@ int main(int argc, char** argv){
 	cout<<endl<<"Parsed definition statements"<<endl;
 	for(unsigned int i=0;i<parsed_defn.size();i++){
 		cout<<parsed_defn[i]<<endl;
+	}
+	cout<<endl<<"Parsed function definitions"<<endl;
+	for(unsigned int i=0;i<parsed_func.size();i++){
+		cout<<parsed_func[i]<<endl;
 	}
 
 	//Making the symbol table from the parsed statements
@@ -374,6 +441,27 @@ int main(int argc, char** argv){
 			cout<<endl;
 		}
 	}
+
+	//Creating the function definition table similar to struct
+	vector<pair<pair<string,string>,vector<tuple<string,string,int,int>>>> func_defn_table;
+    func_defn_table=create_func_info_vec(parsed_func);
+    //Printing the function definition table
+	for(unsigned int i=0;i<func_defn_table.size();i++){
+	    string stype=(func_defn_table[i].first).first;
+	    string sname=(func_defn_table[i].first).second;
+		cout<<"Printing the function definition for: "<<sname<<" "<<stype<<endl;
+		vector<tuple<string,string,int,int>> func_symbol_table;
+		func_symbol_table=func_defn_table[i].second;
+		for(unsigned int j=0;j<func_symbol_table.size();j++){
+			cout<<get<0>(func_symbol_table[j])<<"\t\t";
+			cout<<get<1>(func_symbol_table[j])<<"\t\t";
+			cout<<get<2>(func_symbol_table[j])<<"\t\t";
+			cout<<get<3>(func_symbol_table[j])<<"\t\t";
+			cout<<endl;
+		}
+	}
+    
+
 	//////printing the struct equivalence table//////
 	int i,j,n;
 	vector<vector<int>>equi_table=struct_equi(struct_defn_table);
