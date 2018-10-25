@@ -50,8 +50,8 @@ void fill_symbol_table(vector<string> &parsed_stmts,
 	regex normal_pattern("(int|float|struct[\\s]+[\\S]+)");
 
 	//Starting the interation one by one over all declaration stmts
-	for(unsigned int i=0;i<parsed_stmts.size();i++){
-		string stmt=parsed_stmts[i];
+	for(unsigned int stm_i=0;stm_i<parsed_stmts.size();stm_i++){
+		string stmt=parsed_stmts[stm_i];
 		//cout<<stmt<<endl;
 		//Classifying between two type os writing pointer
 		int pointer_count=0;
@@ -96,6 +96,10 @@ void fill_symbol_table(vector<string> &parsed_stmts,
 				}
 				i+=1;//going over the ']' symbol
 			}
+			//Handling the line number for internal name equivalence
+			//two variable declared on same line will have same character
+			var_name+='0'+stm_i;
+
 			cout<<var_type<<" "<<var_name<<" "<<var_pointer_count<<" "<<arr_size<<endl;
 			//Saving the varaible in the symbol tuple
 			symbol_table.push_back(make_tuple(var_type,var_name,var_pointer_count,arr_size));
@@ -460,7 +464,7 @@ int main(int argc, char** argv){
 			cout<<endl;
 		}
 	}
-    
+
 
 	//////printing the struct equivalence table//////
 	int i,j,n;
