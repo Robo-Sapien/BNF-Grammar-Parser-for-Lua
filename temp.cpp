@@ -212,14 +212,6 @@ vector<vector<int>> struct_equi(vector<pair<string,vector<tuple<string,string,in
             }
         }
     }
-    for(i=0;i<n;i++)
-    {
-        for(j=0;j<n;j++)
-        {
-            cout<<equi_table[i][j]<<" ";
-        }
-        cout<<endl;
-    }
     return equi_table;
 }
 
@@ -257,16 +249,80 @@ vector<pair<string,vector<tuple<string,string,int,int>>>> create_struct_info_vec
 	}
 	return struct_defn_table;
 }
+///////////CREATING NAME EQUIVALENCE TABLE//////////////////
+vector<vector<int>> name_equi(vector<tuple<string,string,int,int>>& symtab)
+{
+    int n=symtab.size(),i,j;
+    vector<vector<int>> name_equi_table(n,vector<int>(n,0));
+    for(i=0;i<n;i++)
+    {
+        for(j=0;j<n;j++)
+        {
+            if(get<2>(symtab[i])==0&&get<2>(symtab[j])==0&&get<3>(symtab[i])==0&&get<3>(symtab[j])==0)
+            {
+                string type1=get<0>(symtab[i]);
+                string type2=get<0>(symtab[j]);
+                if(type1.find("struct")==string::npos&&type2.find("struct")==string::npos&&type1==type2)
+                {
+                    name_equi_table[i][j]=1;
+                }
+            }
+        }
+    }
+    return name_equi_table;
+}
+/////////CREATING STRUCTURE EQUIVALENCE TABLE///////////////
+void struc_equivalence(vector<vector<int>>&stru_equi_table,vector<tuple<string,string,int,int>>& symtab,map<string,int>&m,vector<vector<int>>&equi_table)
+{
+    int i,j,n=stru_equi_table.size();
+    for(i=0;i<n;i++)
+    {
+        for(j=0;j<n;j++)
+        {
+            if(stru_equi_table[i][j]==0)
+            {
+                string type1=get<0>(symtab[i]);
+                string type2=get<0>(symtab[j]);
+                if(type1.find("struct")!=string::npos&&type2.find("struct")!=string::npos)
+                {
+                    if(equi_table[m[type1]][m[type2]]==1||equi_table[m[type2]][m[type1]]==1)
+                    {
+                        if(get<2>(symtab[i])==get<2>(symtab[j])&&get<3>(symtab[i])==get<3>(symtab[j]))
+                        {
+                            stru_equi_table[i][j]=1;
+                        }
+                    }
+                }
+                else
+                {
+                    if(type1==type2&&get<2>(symtab[i])==get<2>(symtab[j])&&get<3>(symtab[i])==get<3>(symtab[j]))
+                    {
+                        stru_equi_table[i][j]=1;
+                    }
+                }
+            }
+        }
+    }
+}
 ///////////////// MAIN FUNCTION ////////////////////////////
 int main(int argc, char** argv){
 	string code="erferf int a,b[100],c5; float c,d,f;  abhinabddefvefv int a1,a2,a3; int abiefvjef;";
-	string code2="bbb int i,*j [15];struct node1{int a;float b;struct node3 c1;};struct node2{int a;float b;struct node3 c1;};struct node3{int a;float b;struct node1 c1;};struct node* *n1,n2  [200];";
+	string code2="	bbb int i,j,*j[15],*k[15];\
+					struct node{int a;float b;struct node c1;};\
+					struct node1{int a;float b;struct node c2;};\
+					struct node* *n1,*n2,n3  [200];\
+					struct node1* *n4;\
+					int func1(int a,float b,struct node cq){blah;blah;return balh};\
+					int func2(int a,int b,struct node1 c1){};\
+					";
 
 	//Regex-Patterns for interger and float parsing
 	regex int_pattern("int.*?;");
 	regex float_pattern("float.*?;");
 	regex struct_defn_pattern("struct.*?[{].*?[}];");
 	regex struct_dec_pattern("struct.*?;");
+	//Regex-Pattern for function extraction
+	regex func_dec_pattern("(?:int|float|struct).*[(].*?[)];")
 
 	//Parsing the declaration statements form the whole code
 	vector<string> parsed_stmts;//this will hold the statements
@@ -318,6 +374,58 @@ int main(int argc, char** argv){
 			cout<<endl;
 		}
 	}
-	struct_equi(struct_defn_table);
+	//////printing the struct equivalence table//////
+	int i,j,n;
+	vector<vector<int>>equi_table=struct_equi(struct_defn_table);
+	n=equi_table.size();
+
+	cout<<endl<<"Printing the struct equivalence table: \n";
+	for(i=0;i<n;i++)
+    {
+        for(j=0;j<n;j++)
+        {
+            cout<<equi_table[i][j]<<" ";
+        }
+        cout<<endl;
+    }
+    cout<<endl;
+
+    ////////printing the name equivalence table/////
+	vector<vector<int>>name_equi_table=name_equi(symbol_table);
+	n=name_equi_table.size();
+
+	cout<<"Printing the name equivalence table: \n";
+	for(i=0;i<n;i++)
+    {
+        for(j=0;j<n;j++)
+        {
+            cout<<name_equi_table[i][j]<<" ";
+        }
+        cout<<endl;
+    }
+    cout<<endl;
+
+    /////STRUCTURE EQUIVALENCE////
+    vector<vector<int>> stru_equi_table(name_equi_table);
+    n=stru_equi_table.size();
+    for(i=0;i<n;i++)
+    {
+        stru_equi_table[i][i]=1;
+    }
+    map<string,int> m;
+    for(i=0;i<struct_defn_table.size();i++)
+    {
+        m[struct_defn_table[i].first]=i;
+    }
+    struc_equivalence(stru_equi_table,symbol_table,m,equi_table);
+    cout<<"printing structure equivalence table: \n";
+    for(i=0;i<n;i++)
+    {
+        for(j=0;j<n;j++)
+        {
+            cout<<stru_equi_table[i][j]<<" ";
+        }
+        cout<<endl;
+    }
 	return 0;
 }
