@@ -30,5 +30,5 @@ Input Constraint:
 The code file should be there in the current folder
 with the name code.txt
 
-Now plese enter the name of two variables separated by commas
+Now please enter the name of two variables separated by commas
 to check their name , internal and strucutral equivalence.
