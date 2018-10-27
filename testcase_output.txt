@@ -1,6 +1,6 @@
 Reading the code file
 
-Parserd declaration statements
+Parsed declaration statements
 struct node* *n1,*n2,n3  [200];
 struct node1* *n4;
 int i,j,*kay[15],*k[15];
