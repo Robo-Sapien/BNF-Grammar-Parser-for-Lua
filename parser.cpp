@@ -551,9 +551,10 @@ void do_BFS(int start,vector<vector<int>> &table,\
 			vector<tuple<string,string,int,int>> &symbol_table,\
 			int visited[]){
 	int size=table.size();
+	cout<<get<1>(symbol_table[start])<<",";
 	for(int i=start+1;i<size;i++){
 		if(visited[i]==0 && table[start][i]==1){
-			cout<<get<1>(symbol_table[i])<<",";
+			// cout<<get<1>(symbol_table[i])<<",";
 			visited[i]=1;
 			do_BFS(i,table,symbol_table,visited);
 		}
@@ -576,9 +577,10 @@ void print_equivalence(vector<vector<int>> &table,\
 			cout<<"[ ";
 			visited[i]=1;
 			do_BFS(i,table,symbol_table,visited);
+			cout<<" ]"<<endl;
 		}
-		cout<<" ]"<<endl;
 	}
+	cout<<"##########################################"<<endl;
 }
 
 void print_equivalence_table(vector<vector<int>> &table){
@@ -710,16 +712,19 @@ int main(int argc, char** argv){
 	cout<<"Prinitng the Results (The ordering is according to number in above tables)"<<endl;
 	cout<<endl<<"Printing the struct equivalence table: \n";
 	print_equivalence_table(equi_table);
+	cout<<"##############################################"<<endl;
 
     //////creating function equivalence table////////
     vector<vector<int>> func_equi_table=func_equi(func_defn_table,equi_table,m);
     cout<<"Printing the function equivalence table:\n";
     print_equivalence_table(func_equi_table);
+	cout<<"##############################################"<<endl;
 
     ////////printing the name equivalence table/////
 	vector<vector<int>>name_equi_table=name_equi(symbol_table);
 	cout<<"Printing the name equivalence table: \n";
 	print_equivalence_table(name_equi_table);
+	cout<<"Pairs which are name equivalent"<<endl;
 	print_equivalence(name_equi_table,symbol_table);
 
     ///////////printing the internal equivalence table////////
@@ -734,6 +739,8 @@ int main(int argc, char** argv){
 		}
 	}
     print_equivalence_table(internal_equi);
+	cout<<"Pairs which are internal name equivalent"<<endl;
+	print_equivalence(internal_equi,symbol_table);
 
     /////STRUCTURE EQUIVALENCE////
     vector<vector<int>> stru_equi_table(name_equi_table);
@@ -745,6 +752,8 @@ int main(int argc, char** argv){
     struc_equivalence(stru_equi_table,symbol_table,m,equi_table);
     cout<<"printing structure equivalence table: \n";
 	print_equivalence_table(stru_equi_table);
+	cout<<"Pairs which are structurally equivalent"<<endl;
+	print_equivalence(stru_equi_table,symbol_table);
 
 	return 0;
 }
