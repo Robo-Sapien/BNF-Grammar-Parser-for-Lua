@@ -1,0 +1,119 @@
+Reading the code file
+
+Parserd declaration statements
+struct node* *n1,*n2,n3  [200];
+struct node1* *n4;
+int i,j,*kay[15],*k[15];
+
+Parsed definition statements
+struct node{int a;float b;struct node c1;};
+struct node1{int a;float b;struct node c2;};
+
+Parsed function definitions
+int* * func1(int a,float b,struct node cq);
+struct node* * * func2(int a,int b,struct node1 c1);
+##############################################
+
+Prinitng the symbol table
+SNo.		Type		Name		Pointer		ArraySize
+0:	struct node		n10		2		0		
+1:	struct node		n20		2		0		
+2:	struct node		n30		1		200		
+3:	struct node1		n41		2		0		
+4:	int		i2		0		0		
+5:	int		j2		0		0		
+6:	int		kay2		1		15		
+7:	int		k2		1		15		
+##############################################
+
+Creating the struct definition table
+0 :struct node
+int		a0		0		0		
+float		b1		0		0		
+struct node		c12		0		0		
+
+1 :struct node1
+int		a0		0		0		
+float		b1		0		0		
+struct node		c22		0		0		
+
+##############################################
+
+Creating the func definition table
+Printing the function definition
+0 : func1 int2
+int		a0		0		0		
+float		b1		0		0		
+struct node		cq2		0		0		
+
+1 : func2 struct node3
+int		a0		0		0		
+int		b1		0		0		
+struct node1		c12		0		0		
+
+##############################################
+Prinitng the Results (The ordering is according to number in above tables)
+
+Printing the struct equivalence table: 
+1 1 
+-1 1 
+
+##############################################
+Printing the function equivalence table:
+1 0 
+0 1 
+
+##############################################
+Printing the name equivalence table: 
+0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 
+0 0 0 0 1 1 0 0 
+0 0 0 0 1 1 0 0 
+0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 
+
+Pairs which are name equivalent
+[ n10, ]
+[ n20, ]
+[ n30, ]
+[ n41, ]
+[ i2,j2, ]
+[ kay2, ]
+[ k2, ]
+##########################################
+Printing internal equivalence table:
+0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 
+0 0 1 0 0 0 0 0 
+0 0 0 0 0 0 0 0 
+0 0 0 0 1 1 0 0 
+0 0 0 0 1 1 0 0 
+0 0 0 0 0 0 1 1 
+0 0 0 0 0 0 1 1 
+
+Pairs which are internal name equivalent
+[ n10, ]
+[ n20, ]
+[ n30, ]
+[ n41, ]
+[ i2,j2, ]
+[ kay2,k2, ]
+##########################################
+printing structure equivalence table: 
+1 1 0 1 0 0 0 0 
+1 1 0 1 0 0 0 0 
+0 0 1 0 0 0 0 0 
+1 1 0 1 0 0 0 0 
+0 0 0 0 1 1 0 0 
+0 0 0 0 1 1 0 0 
+0 0 0 0 0 0 1 1 
+0 0 0 0 0 0 1 1 
+
+Pairs which are structurally equivalent
+[ n10,n20,n41, ]
+[ n30, ]
+[ i2,j2, ]
+[ kay2,k2, ]
+##########################################

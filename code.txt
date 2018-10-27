@@ -1,6 +1,6 @@
 int* * func1(int a,float b,struct node cq);
 struct node* * * func2(int a,int b,struct node1 c1);
-bbb int i,j,*j[15],*k[15];
+bbb int i,j,*kay[15],*k[15];
 struct node{int a;float b;struct node c1;};
 struct node1{int a;float b;struct node c2;};
 struct node* *n1,*n2,n3  [200];
